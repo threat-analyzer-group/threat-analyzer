@@ -1,0 +1,5 @@
+# Nothing shall be in this folder on commit! #
+*
+
+# Except this file! #
+!.gitignore
