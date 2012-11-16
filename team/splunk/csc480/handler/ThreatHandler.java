@@ -41,8 +41,8 @@ public interface ThreatHandler {
        */
       public Threat(String addr, DataItem d, ThreatLevel l) {
          this.addr = new IPAddress(addr);
-         level = l;
-         item = d;
+         this.level = l;
+         this.item = d;
       }
    }
 

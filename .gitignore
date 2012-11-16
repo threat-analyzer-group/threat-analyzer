@@ -11,3 +11,5 @@
 # IDE files #
 *.iml
 .idea
+.DS_Store
+
