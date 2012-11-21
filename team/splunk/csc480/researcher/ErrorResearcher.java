@@ -9,6 +9,9 @@ import java.util.HashMap;
 
 /**
  * Analyzes DataItems, looking for "warn", "error", etc.
+ * @author Team Splunk (Austin Dworaczyk Wiltshire)
+ * @version 1.0
+ * @date November 20th, 2012
  */
 public class ErrorResearcher implements Researcher{
    private ThreatHandler handler;
@@ -35,7 +38,7 @@ public class ErrorResearcher implements Researcher{
       Threat t = null;
 
       //The below is just a place holder. I need to determine the layout of the DataItem data before
-      //I can actually make something useful. 
+      //I can actually make something useful.
       for (String error : APACHEMAPPINGS.keySet()){
          if (item.data.containsKey(error)){
             t = new Threat("0.0.0.0", item, APACHEMAPPINGS.get(error));
