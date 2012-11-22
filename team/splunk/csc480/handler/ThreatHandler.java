@@ -22,6 +22,50 @@ public interface ThreatHandler {
 
       public int severity;
       ThreatLevel(int severity) { this.severity = severity; }
+
+      /**
+       * Return the highest threat level less than or equal to score.
+       *
+       * @param score the score an IP address has attained
+       * @return a threat level lte to score
+       */
+      public static ThreatLevel get(int score) {
+         ThreatLevel curLevel = BLUE;
+
+         for (ThreatLevel lev : ThreatLevel.values()) {
+            if (score >= lev.severity && lev.severity > curLevel.severity)
+               curLevel = lev;
+         }
+
+         return curLevel;
+      }
+   }
+
+   /**
+    * Stores an IP address and the threat level of that IP address, as well
+    * as the total score it has attained.
+    */
+   public static class ThreatResult {
+      public final IPAddress address;
+      public final ThreatLevel level;
+      public final int result;
+
+      ThreatResult(IPAddress a, int r) {
+         this.address = a;
+         this.result = r;
+         this.level = ThreatLevel.get(r);
+      }
+
+      @Override
+      public String toString() {
+         StringBuilder sb = new StringBuilder();
+
+         sb.append("IP: ").append(address.toString());
+         sb.append("; Level: ");
+         sb.append(level).append("/").append(result);
+
+         return sb.toString();
+      }
    }
 
    /**
@@ -50,7 +94,7 @@ public interface ThreatHandler {
     * Receives threats from Researchers and does any required processing or
     * reporting on them.
     *
-    * @param t
+    * @param t the threat object to report to the ThreatHandler
     */
    public void reportThreat(Threat t);
 }
