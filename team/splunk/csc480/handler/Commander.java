@@ -133,13 +133,13 @@ public class Commander implements ThreatHandler, Broadcaster {
       List<DataSource> sources = new ArrayList<DataSource>();
 
       researchers.add(new GrumpyResearcher());
-
       sources.add(new HelloDataSource());
+
+      Commander shepard = new Commander(researchers, sources);
 
       try {
          String input;
          Scanner sysIn = new Scanner(System.in);
-         Commander shepard = new Commander(researchers, sources);
          shepard.start();
 
          Pattern quit = Pattern.compile(QUIT_PATTERN);
@@ -157,12 +157,13 @@ public class Commander implements ThreatHandler, Broadcaster {
                }
             }
          }
-
-         shepard.stop();
       }
       catch (Exception e) {
          System.err.println("ERROR!!");
          e.printStackTrace();
+      }
+      finally {
+         shepard.stop();
       }
    }
 }
