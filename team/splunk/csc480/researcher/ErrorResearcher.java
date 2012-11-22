@@ -13,9 +13,7 @@ import java.util.HashMap;
  * @version 1.0
  * @date November 20th, 2012
  */
-public class ErrorResearcher implements Researcher{
-   private ThreatHandler handler;
-
+public class ErrorResearcher extends Researcher {
    private static final HashMap<String, ThreatHandler.ThreatLevel> APACHEMAPPINGS = new HashMap<String, ThreatHandler.ThreatLevel>(){
       {
          put("warn", ThreatLevel.YELLOW);
@@ -24,14 +22,7 @@ public class ErrorResearcher implements Researcher{
       }
    };
 
-   public ErrorResearcher() {
-
-   }
-
-   @Override
-   public void setThreatHandler(ThreatHandler handler) {
-      this.handler = handler;
-   }
+   public ErrorResearcher() { }
 
    @Override
    public void reportEvent(DataItem item) {

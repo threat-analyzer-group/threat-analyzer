@@ -12,13 +12,9 @@ import team.splunk.csc480.handler.ThreatHandler.*;
  * @version 3.14
  * @date Nov. 13, 2012
  */
-public class GrumpyResearcher implements Researcher {
-   private ThreatHandler handler;
+public class GrumpyResearcher extends Researcher {
 
    public GrumpyResearcher() { }
-
-   @Override
-   public void setThreatHandler(ThreatHandler handler) { this.handler = handler; }
 
    @Override
    public void reportEvent(DataItem item) {

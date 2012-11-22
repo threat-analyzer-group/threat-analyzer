@@ -11,7 +11,10 @@ import team.splunk.csc480.handler.ThreatHandler;
  * @version 3.14
  * @date Nov. 13, 2012
  */
-public interface Researcher {
+public abstract class Researcher {
+   protected ThreatHandler handler;
+
+   protected Researcher() {}
 
    /**
     * Sets the ThreatHandler for this Researcher to handler. This method must
@@ -20,7 +23,9 @@ public interface Researcher {
     *
     * @param handler the ThreatHandler to use when reporting threats
     */
-   public void setThreatHandler(ThreatHandler handler);
+   public void setThreatHandler(ThreatHandler handler) {
+      this.handler = handler;
+   }
 
    /**
     * Any class can call this method and pass a DataItem that can be
@@ -30,5 +35,5 @@ public interface Researcher {
     *
     * @param item a DataItem to analyze
     */
-   public void reportEvent(DataItem item);
+   public abstract void reportEvent(DataItem item);
 }
