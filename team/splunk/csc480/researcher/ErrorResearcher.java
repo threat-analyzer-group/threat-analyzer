@@ -31,9 +31,9 @@ public class ErrorResearcher extends Researcher {
       //The below is just a place holder. I need to determine the layout of the DataItem data before
       //I can actually make something useful.
       for (String error : APACHEMAPPINGS.keySet()){
-         if (item.data.containsKey(error)){
+         /*if (item.data.containsKey(error)){
             t = new Threat("0.0.0.0", item, APACHEMAPPINGS.get(error));
-         }
+         }*/
       }
       if (t != null){
          handler.reportThreat(t);
