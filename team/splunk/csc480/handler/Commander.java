@@ -3,10 +3,12 @@ package team.splunk.csc480.handler;
 import team.splunk.csc480.data.DataItem;
 import team.splunk.csc480.data.DataItem.*;
 import team.splunk.csc480.data.DataSource;
+import team.splunk.csc480.data.FileDataSource;
 import team.splunk.csc480.data.HelloDataSource;
 import team.splunk.csc480.researcher.GrumpyResearcher;
 import team.splunk.csc480.researcher.Researcher;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -59,7 +61,7 @@ public class Commander implements ThreatHandler, Broadcaster {
    }
 
    /**
-    * Stop all DataSources.
+    * Stop all DataSource.
     */
    public void stop() {
       for (DataSource source : sources) {
@@ -132,8 +134,13 @@ public class Commander implements ThreatHandler, Broadcaster {
       List<Researcher> researchers = new ArrayList<Researcher>();
       List<DataSource> sources = new ArrayList<DataSource>();
 
-      researchers.add(new GrumpyResearcher());
-      sources.add(new HelloDataSource());
+      try {
+         researchers.add(new GrumpyResearcher());
+         sources.add(new FileDataSource("cool.txt"));
+      }
+      catch (FileNotFoundException e) {
+         e.printStackTrace();
+      }
 
       Commander shepard = new Commander(researchers, sources);
 

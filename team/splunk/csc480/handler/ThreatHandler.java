@@ -88,6 +88,17 @@ public interface ThreatHandler {
          this.level = l;
          this.item = d;
       }
+
+      @Override
+      public String toString() {
+         StringBuilder sb = new StringBuilder();
+
+         sb.append("IP: ").append(addr.toString());
+         sb.append("; ").append(level.toString());
+         sb.append("; ").append(item.toString());
+
+         return sb.toString();
+      }
    }
 
    /**
