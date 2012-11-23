@@ -6,6 +6,8 @@ import team.splunk.csc480.handler.ThreatHandler.*;
 
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Analyzes DataItems, looking for "warn", "error", etc.
@@ -14,28 +16,35 @@ import java.util.HashMap;
  * @date November 20th, 2012
  */
 public class ErrorResearcher extends Researcher {
-   private static final HashMap<String, ThreatHandler.ThreatLevel> APACHEMAPPINGS = new HashMap<String, ThreatHandler.ThreatLevel>(){
-      {
-         put("warn", ThreatLevel.YELLOW);
-         put("error", ThreatLevel.ORANGE);
-         put("alert", ThreatLevel.RED);
-      }
-   };
 
    public ErrorResearcher() { }
 
    @Override
    public void reportEvent(DataItem item) {
       Threat t = null;
+      Pattern pat = Pattern.compile("\\[(warn|error|alert)\\]");
+      Matcher match = pat.matcher(item.data);
 
-      //The below is just a place holder. I need to determine the layout of the DataItem data before
-      //I can actually make something useful.
-      for (String error : APACHEMAPPINGS.keySet()){
-         /*if (item.data.containsKey(error)){
-            t = new Threat("0.0.0.0", item, APACHEMAPPINGS.get(error));
-         }*/
-      }
-      if (t != null){
+      if (match.find() && match.groupCount() > 0) {
+         Pattern ipPat = Pattern.compile("client (\\d+\\.\\d+\\.\\d+.\\d+)");
+         Matcher ipMatch = ipPat.matcher(item.data);
+
+         String ipAddress = ipMatch.find() ? ipMatch.group(1) : "";
+
+         String message = match.group(1);
+         ThreatLevel threatLevel = ThreatLevel.BLUE;
+
+         if (message.equals("alert")) {
+           threatLevel = ThreatLevel.YELLOW;
+         }
+         else if (message.equals("warn")) {
+            threatLevel = ThreatLevel.ORANGE;
+         }
+         else if (message.equals("error")) {
+            threatLevel = ThreatLevel.RED;
+         }
+
+         t = new Threat(ipAddress, item, threatLevel);
          handler.reportThreat(t);
       }
    }
