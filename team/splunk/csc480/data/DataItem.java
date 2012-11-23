@@ -1,8 +1,5 @@
 package team.splunk.csc480.data;
 
-import java.util.Date;
-import java.util.HashMap;
-
 /**
  * A piece of data representing one log entry of a file.
  *
@@ -12,8 +9,7 @@ import java.util.HashMap;
  */
 public class DataItem {
    public final String fromFile;
-   public final Date date;
-   public final HashMap<String, String> data;
+   public final String data;
 
    public static class IPAddress {
       private static final int byteMask = 0x000000FF;
@@ -52,7 +48,12 @@ public class DataItem {
       }
    }
    
-   public DataItem(String ff, Date d, HashMap<String, String> dt) {
-      data = dt; fromFile = ff; date = d;
+   public DataItem(String ff, String data) {
+      this.data = data;
+      this.fromFile = ff;
+   }
+
+   public String toString() {
+      return "DataSource: " + fromFile + "; Data: " + data;
    }
 }
