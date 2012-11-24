@@ -6,11 +6,11 @@ import team.splunk.csc480.data.DataSource;
 import team.splunk.csc480.data.FileDataSource;
 import team.splunk.csc480.researcher.ErrorResearcher;
 import team.splunk.csc480.researcher.FrequentAccessResearcher;
-import team.splunk.csc480.researcher.GrumpyResearcher;
 import team.splunk.csc480.researcher.Researcher;
 
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -26,10 +26,24 @@ public class Commander implements ThreatHandler, Broadcaster {
    private List<Researcher> researchers = new ArrayList<Researcher>();
 
    private Map<IPAddress, Integer> levels = new HashMap<IPAddress, Integer>();
+
+   private int threshold = 1000000;
+   private int msPerPoint = 10;
+
    private static final int DEFAULT_OFFENDERS = 10;
 
-   private static final String QUIT_PATTERN = "(?i)(q$|quit$)";
-   private static final String VIEW_PATTERN = "(?i)(v$|view$)";
+   private static final String QUIT_PATTERN = "(?i)(q|quit)$";
+   private static final String HELP_PATTERN = "(?i)(h|help)$";
+   private static final String VIEW_PATTERN = "(?i)(v|view)$";
+   private static final String NOTIFY_PATTERN = "(?i)(n|notify) (\\d*)$";
+
+   private static final String HELP_TEXT = "Usage: \n" +
+     " quit: stops the program\n" +
+     " view: views the top 10 offenders at this point in time\n" +
+     " worst: views the top 10 high scores since we started collecting data\n" +
+     " notify [num]: sets a threshold for notification; user receives message for any" +
+       " IP above [num] score\n" +
+     " help: this message";
 
    /**
     * Initializes the list of sources and researchers, then sets itself to be
@@ -104,6 +118,15 @@ public class Commander implements ThreatHandler, Broadcaster {
       return getWorstOffenders(DEFAULT_OFFENDERS);
    }
 
+
+   public synchronized void setThreshold(int threshold) {
+      this.threshold = threshold;
+   }
+
+   public synchronized int getThreshold() {
+      return threshold;
+   }
+
    /**
     * Returns a list of the `num` worst offenders and their scores
     *
@@ -152,12 +175,19 @@ public class Commander implements ThreatHandler, Broadcaster {
          Scanner sysIn = new Scanner(System.in);
          shepard.start();
 
+         Matcher match;
          Pattern quit = Pattern.compile(QUIT_PATTERN);
+         Pattern help = Pattern.compile(HELP_PATTERN);
          Pattern view = Pattern.compile(VIEW_PATTERN);
+         Pattern notify = Pattern.compile(NOTIFY_PATTERN);
 
          while ((input = sysIn.nextLine()) != null) {
             if (quit.matcher(input).find())
                break;
+
+            else if (help.matcher(input).find())
+               System.out.println(HELP_TEXT);
+
             else if (view.matcher(input).find()) {
                List<ThreatResult> results = shepard.getWorstOffenders();
                System.out.println("CURRENT STATS:");
@@ -165,6 +195,11 @@ public class Commander implements ThreatHandler, Broadcaster {
                for (ThreatResult res : results) {
                   System.out.println(res.toString());
                }
+            }
+
+            else if ((match = notify.matcher(input)).find()) {
+               Integer threshold = Integer.parseInt(match.group(2));
+               shepard.setThreshold(threshold);
             }
          }
       }
