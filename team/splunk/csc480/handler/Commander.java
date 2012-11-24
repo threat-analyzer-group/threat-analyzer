@@ -118,11 +118,22 @@ public class Commander implements ThreatHandler, Broadcaster {
       return getWorstOffenders(DEFAULT_OFFENDERS);
    }
 
-
+   /**
+    * Notifies the user about any IP address with a current score greater
+    * than the threshold given. Any subsequent calls to this method clears
+    * the previously set threshold.
+    *
+    * @param threshold the minimum score to notify the user about
+    */
    public synchronized void setThreshold(int threshold) {
       this.threshold = threshold;
    }
 
+   /**
+    * Gets the current score threshold for notification
+    *
+    * @return the score threshold
+    */
    public synchronized int getThreshold() {
       return threshold;
    }
