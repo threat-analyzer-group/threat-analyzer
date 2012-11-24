@@ -99,7 +99,7 @@ public class FrequentAccessResearcher extends Researcher {
        }
 
        if (threatLevel != ThreatLevel.BLUE) {
-         t = new Threat(ipAddress, item, threatLevel);
+         t = new Threat(ipAddress, last, item, threatLevel);
          handler.reportThreat(t);
        }
    }

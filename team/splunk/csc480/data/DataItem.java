@@ -40,11 +40,22 @@ public class DataItem {
          }
       }
 
+      @Override
       public String toString() {
          return ((addr >> 24) & byteMask) + "." +
            ((addr >> 16) & byteMask) + "." +
            ((addr >> 8) & byteMask) + "." +
            (addr & byteMask);
+      }
+
+      @Override
+      public boolean equals(Object ipObj) {
+         return ipObj.toString().equalsIgnoreCase(this.toString());
+      }
+
+      @Override
+      public int hashCode() {
+         return byteMask;
       }
    }
    

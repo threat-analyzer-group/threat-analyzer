@@ -22,10 +22,33 @@ import java.util.regex.Pattern;
  * @date Nov. 13, 2012
  */
 public class Commander implements ThreatHandler, Broadcaster {
+
+   private class ScoreCard {
+      public final int total;
+      public final int current;
+      private final long updated;
+
+      public ScoreCard(int total, int current, long updated) {
+         this.total = total;
+         this.current = current;
+         this.updated = updated;
+      }
+
+      public ScoreCard calculate(int severity, long newTime) {
+         int pointsOff = (int) (newTime - updated) * msPerPoint;
+         return new ScoreCard(total + severity, (current - pointsOff) + severity, newTime);
+      }
+
+      @Override
+      public String toString() {
+         return "Total: " + total + ", Current: " + current;
+      }
+   }
+
    private List<DataSource> sources = new ArrayList<DataSource>();
    private List<Researcher> researchers = new ArrayList<Researcher>();
 
-   private Map<IPAddress, Integer> levels = new HashMap<IPAddress, Integer>();
+   private Map<IPAddress, ScoreCard> levels = new HashMap<IPAddress, ScoreCard>();
 
    private int threshold = 1000000;
    private int msPerPoint = 10;
@@ -90,11 +113,21 @@ public class Commander implements ThreatHandler, Broadcaster {
     *
     * @param t a threat from a Researcher
     */
+   @Override
    public synchronized void reportThreat(Threat t) {
-      Integer threat = levels.get(t.addr);
-      levels.put(t.addr, ((threat != null) ? threat : 0) + t.level.severity);
+      ScoreCard threat = levels.get(t.addr);
 
-      System.out.println(t.toString());
+      if (threat == null) {
+         threat = new ScoreCard(t.level.severity, t.level.severity, t.timeMillis);
+      }
+      else {
+         threat = threat.calculate(t.level.severity, t.timeMillis);
+      }
+
+      levels.put(t.addr, threat);
+
+      if (threat.current > getThreshold())
+         System.out.println("IP over Threshold: " + t.addr + ", " + threat);
    }
 
    /**
@@ -148,7 +181,7 @@ public class Commander implements ThreatHandler, Broadcaster {
       List<ThreatResult> offenders = new ArrayList<ThreatResult>(num);
 
       for (IPAddress addr : levels.keySet()) {
-         offenders.add(new ThreatResult(addr, levels.get(addr)));
+         offenders.add(new ThreatResult(addr, levels.get(addr).current));
       }
 
       Collections.sort(offenders, new Comparator<ThreatResult>() {

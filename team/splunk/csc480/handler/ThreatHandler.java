@@ -73,6 +73,7 @@ public interface ThreatHandler {
     */
    public static class Threat {
       public final IPAddress addr;
+      public final long timeMillis;
       public final ThreatLevel level;
       public final DataItem item;
 
@@ -83,10 +84,11 @@ public interface ThreatHandler {
        * @param d a DataItem
        * @param l the threat level
        */
-      public Threat(String addr, DataItem d, ThreatLevel l) {
+      public Threat(String addr, long millis, DataItem d, ThreatLevel l) {
          this.addr = new IPAddress(addr);
          this.level = l;
          this.item = d;
+         this.timeMillis = millis;
       }
 
       @Override

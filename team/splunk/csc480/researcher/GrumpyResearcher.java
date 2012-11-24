@@ -18,7 +18,7 @@ public class GrumpyResearcher extends Researcher {
 
    @Override
    public void reportEvent(DataItem item) {
-      Threat t = new Threat("0.0.0.0", item, ThreatLevel.RED);
+      Threat t = new Threat("0.0.0.0", 0, item, ThreatLevel.RED);
       handler.reportThreat(t);
    }
 }
