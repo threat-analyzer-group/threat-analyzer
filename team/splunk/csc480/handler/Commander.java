@@ -5,6 +5,7 @@ import team.splunk.csc480.data.DataItem.*;
 import team.splunk.csc480.data.DataSource;
 import team.splunk.csc480.data.FileDataSource;
 import team.splunk.csc480.researcher.ErrorResearcher;
+import team.splunk.csc480.researcher.FrequentAccessResearcher;
 import team.splunk.csc480.researcher.GrumpyResearcher;
 import team.splunk.csc480.researcher.Researcher;
 
@@ -136,7 +137,9 @@ public class Commander implements ThreatHandler, Broadcaster {
 
       try {
          researchers.add(new ErrorResearcher());
+         researchers.add(new FrequentAccessResearcher());
          sources.add(new FileDataSource("error_log"));
+         sources.add(new FileDataSource("access_log"));
       }
       catch (FileNotFoundException e) {
          e.printStackTrace();
