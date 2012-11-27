@@ -23,20 +23,34 @@ import java.util.regex.Pattern;
  */
 public class Commander implements ThreatHandler, Broadcaster {
 
-   private class ScoreCard {
-      public final int total;
-      public final int current;
+   private final class ScoreCard {
+      public final long total;
+      public final long current;
       private final long updated;
 
-      public ScoreCard(int total, int current, long updated) {
+      public static final long NOW = -1;
+
+      public ScoreCard(long total, long current, long updated) {
          this.total = total;
          this.current = current;
          this.updated = updated;
       }
 
       public ScoreCard calculate(int severity, long newTime) {
-         int pointsOff = (int) (newTime - updated) * msPerPoint;
-         return new ScoreCard(total + severity, (current - pointsOff) + severity, newTime);
+         long pointsOff = (newTime - updated) * msPerPoint;
+         long score = (current - pointsOff) + severity;
+
+         return new ScoreCard(total + severity, (score > 0) ? score : 0, newTime);
+      }
+
+      /**
+       * Shortcut for this.calculate(0, time)
+       *
+       * @param time the time at which to retrieve this ScoreCard
+       * @return a new ScoreCard with totals for the time indicated
+       */
+      public ScoreCard at(long time) {
+         return calculate(0, (time == NOW) ? System.currentTimeMillis() : time);
       }
 
       @Override
@@ -178,7 +192,8 @@ public class Commander implements ThreatHandler, Broadcaster {
     * @return a list of ThreatResults
     */
    public synchronized List<ThreatResult> getWorstOffenders(int num) {
-      List<ThreatResult> offenders = new ArrayList<ThreatResult>(num);
+      List<ThreatResult> offenders = new ArrayList<ThreatResult>();
+      List<ThreatResult> offNow = new ArrayList<ThreatResult>(num);
 
       for (IPAddress addr : levels.keySet()) {
          offenders.add(new ThreatResult(addr, levels.get(addr).current));
@@ -187,12 +202,19 @@ public class Commander implements ThreatHandler, Broadcaster {
       Collections.sort(offenders, new Comparator<ThreatResult>() {
          @Override
          public int compare(ThreatResult o1, ThreatResult o2) {
-            return o1.result - o2.result;
+            if (o1.result == o2.result)
+               return 0;
+            else
+               return o1.result > o2.result ? 1 : -1;
          }
       });
 
-      return offenders.subList(0,
-        (num < offenders.size()) ? num : offenders.size());
+      for (int i = 0, tot = offenders.size(); i < num && i < tot; i++) {
+         ThreatResult tr = offenders.get(i);
+         offNow.add(new ThreatResult(tr.address, levels.get(tr.address).at(ScoreCard.NOW).current));
+      }
+
+      return offNow;
    }
 
    /**

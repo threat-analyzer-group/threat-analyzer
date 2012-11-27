@@ -29,7 +29,7 @@ public interface ThreatHandler {
        * @param score the score an IP address has attained
        * @return a threat level lte to score
        */
-      public static ThreatLevel get(int score) {
+      public static ThreatLevel get(long score) {
          ThreatLevel curLevel = BLUE;
 
          for (ThreatLevel lev : ThreatLevel.values()) {
@@ -48,9 +48,9 @@ public interface ThreatHandler {
    public static class ThreatResult {
       public final IPAddress address;
       public final ThreatLevel level;
-      public final int result;
+      public final long result;
 
-      ThreatResult(IPAddress a, int r) {
+      ThreatResult(IPAddress a, long r) {
          this.address = a;
          this.result = r;
          this.level = ThreatLevel.get(r);
