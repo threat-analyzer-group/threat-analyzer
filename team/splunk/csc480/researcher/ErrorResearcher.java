@@ -26,10 +26,14 @@ public class ErrorResearcher extends Researcher {
    @Override
    public void reportEvent(DataItem item) {
       Threat t = null;
-      Pattern pat = Pattern.compile("\\[(warn|error|alert)\\]");
-      Matcher match = pat.matcher(item.data);
+      Pattern errorMessagePattern = Pattern.compile("\\[(warn|error|alert)\\]");
+      Matcher errorMessageMatch = errorMessagePattern.matcher(item.data);
 
-      if (match.find() && match.groupCount() > 0) {
+      Pattern errorCodePattern = Pattern.compile("([4|5]\\d{2}) -|\\d+$");
+      Matcher errorCodeMatch = errorCodePattern.matcher(item.data);
+
+      //Handle [warn] | [error] | [alert] in the error_log
+      if (errorMessageMatch.find() && errorMessageMatch.groupCount() > 0) {
          Pattern ipPat = Pattern.compile("client (\\d+\\.\\d+\\.\\d+.\\d+)");
          Pattern datePat = Pattern.compile("[(\\w{3} \\w{3} \\d{2} \\d{2}:\\d{2}:\\d{2} \\d{4})]");
          Matcher ipMatch = ipPat.matcher(item.data);
@@ -37,7 +41,7 @@ public class ErrorResearcher extends Researcher {
 
          String ipAddress = ipMatch.find() ? ipMatch.group(1) : "";
 
-         String message = match.group(1);
+         String message = errorMessageMatch.group(1);
          ThreatLevel threatLevel = ThreatLevel.BLUE;
 
          if (message.equals("alert")) {
@@ -61,6 +65,18 @@ public class ErrorResearcher extends Researcher {
          }
 
          t = new Threat(ipAddress, millis, item, threatLevel);
+         handler.reportThreat(t);
+      }
+      //Handle error codes at the end of the access_log.
+      else if (errorCodeMatch.find() && errorCodeMatch.groupCount() > 0) {
+         Pattern ipPat = Pattern.compile("^\\d+.\\d+.\\d+.\\d+");
+         Matcher ipMatch = ipPat.matcher(item.data);
+
+         String ipAddress = ipMatch.find() ? ipMatch.group(1) : "";
+
+         String errorCode = errorCodeMatch.group(1);
+
+         t = new Threat(ipAddress, item, ThreatLevel.ORANGE);
          handler.reportThreat(t);
       }
    }
