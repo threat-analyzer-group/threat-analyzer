@@ -26,19 +26,21 @@ public class ErrorResearcher extends Researcher {
    @Override
    public void reportEvent(DataItem item) {
       Threat t = null;
-      Pattern pat = Pattern.compile("\\[(warn|error|alert)\\]");
-      Matcher match = pat.matcher(item.data);
+      Pattern errorMessagePattern = Pattern.compile("\\[(warn|error|alert)\\]");
+      Matcher errorMessageMatch = errorMessagePattern.matcher(item.data);
 
-      if (match.find() && match.groupCount() > 0) {
+      Pattern errorCodePattern = Pattern.compile("([4|5]\\d{2}) -|\\d+$");
+      Matcher errorCodeMatch = errorCodePattern.matcher(item.data);
+
+      //Handle [warn] | [error] | [alert] in the error_log
+      if (errorMessageMatch.find() && errorMessageMatch.groupCount() > 0) {
          Pattern ipPat = Pattern.compile("client (\\d+\\.\\d+\\.\\d+.\\d+)");
-         Pattern datePat = Pattern.compile("[(\\w{3} \\w{3} \\d{2} \\d{2}:\\d{2}:\\d{2} \\d{4})]");
          Matcher ipMatch = ipPat.matcher(item.data);
-         Matcher dateMatch = datePat.matcher(item.data);
 
          String ipAddress = ipMatch.find() ? ipMatch.group(1) : "";
 
-         String message = match.group(1);
-         ThreatLevel threatLevel = ThreatLevel.BLUE;
+         String message = errorMessageMatch.group(1);
+         ThreatLevel threatLevel = null;
 
          if (message.equals("alert")) {
            threatLevel = ThreatLevel.YELLOW;
@@ -50,18 +52,39 @@ public class ErrorResearcher extends Researcher {
             threatLevel = ThreatLevel.RED;
          }
 
-         String date = (dateMatch.find() ? dateMatch.group(0) : "");
-         long millis;
-
-         try {
-            millis = dateFormat.parse(date).getTime();
+         if (threatLevel != null) {
+            t = new Threat(ipAddress, getTime(item), item, threatLevel);
+            handler.reportThreat(t);
          }
-         catch (ParseException e) {
-            millis = 0L;
-         }
+      }
+      //Handle error codes at the end of the access_log.
+      else if (errorCodeMatch.find() && errorCodeMatch.groupCount() > 0) {
+         Pattern ipPat = Pattern.compile("^\\d+.\\d+.\\d+.\\d+");
+         Matcher ipMatch = ipPat.matcher(item.data);
 
-         t = new Threat(ipAddress, millis, item, threatLevel);
+         String ipAddress = ipMatch.groupCount() > 0 ? ipMatch.group(1) : "";
+
+         String errorCode = errorCodeMatch.group(1);
+
+         t = new Threat(ipAddress, getTime(item), item, ThreatLevel.ORANGE);
          handler.reportThreat(t);
       }
+   }
+
+   private long getTime(DataItem item) {
+      Pattern datePat = Pattern.compile("[(\\w{3} \\w{3} \\d{2} \\d{2}:\\d{2}:\\d{2} \\d{4})]");
+      Matcher dateMatch = datePat.matcher(item.data);
+
+      String date = (dateMatch.find() ? dateMatch.group(0) : "");
+      long millis;
+
+      try {
+         millis = dateFormat.parse(date).getTime();
+      }
+      catch (ParseException e) {
+         millis = 0L;
+      }
+
+      return millis;
    }
 }
