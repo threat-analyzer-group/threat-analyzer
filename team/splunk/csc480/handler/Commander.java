@@ -179,7 +179,17 @@ public class Commander implements ThreatHandler, Broadcaster {
     * @return a list of ThreatResults
     */
    public List<ThreatResult> getWorstOffenders() {
-      return getWorstOffenders(DEFAULT_OFFENDERS);
+      return getWorstOffenders(DEFAULT_OFFENDERS, ScoreCard.NOW);
+   }
+
+   /**
+    * Returns a list of the n worst offenders at the time specified
+    * TODO: add this option to the user interface
+    *
+    * @return a list of ThreatResults representing the worst offenders
+    */
+   public List<ThreatResult> getWorstOffenders(Date date) {
+      return getWorstOffenders(DEFAULT_OFFENDERS, date.getTime());
    }
 
    /**
@@ -198,7 +208,7 @@ public class Commander implements ThreatHandler, Broadcaster {
     *
     * @return the score threshold
     */
-   public synchronized int getThreshold() {
+   public synchronized long getThreshold() {
       return threshold;
    }
 
@@ -208,7 +218,7 @@ public class Commander implements ThreatHandler, Broadcaster {
     * @param num the number of offenders to return
     * @return a list of ThreatResults
     */
-   public synchronized List<ThreatResult> getWorstOffenders(int num) {
+   public synchronized List<ThreatResult> getWorstOffenders(int num, long time) {
       List<ThreatResult> offenders = new ArrayList<ThreatResult>();
       List<ThreatResult> offNow = new ArrayList<ThreatResult>(num);
 
@@ -228,7 +238,7 @@ public class Commander implements ThreatHandler, Broadcaster {
 
       for (int i = 0, tot = offenders.size(); i < num && i < tot; i++) {
          ThreatResult tr = offenders.get(i);
-         offNow.add(new ThreatResult(tr.address, levels.get(tr.address).at(ScoreCard.NOW).current));
+         offNow.add(new ThreatResult(tr.address, levels.get(tr.address).at(time).current));
       }
 
       return offNow;
