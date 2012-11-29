@@ -23,6 +23,16 @@ import java.util.regex.Pattern;
  */
 public class Commander implements ThreatHandler, Broadcaster {
 
+   private final static class ResearcherAvg {
+      private long sumScores;
+      private int numScores;
+
+      public ResearcherAvg() { sumScores = 0; numScores = 0; }
+
+      public void addScore(long score) { sumScores += score; numScores++; }
+      public double getScoreAvg() { return sumScores / (numScores > 0 ? numScores : -1); }
+   }
+
    private final class ScoreCard {
       public final long total;
       public final long current;
@@ -91,12 +101,13 @@ public class Commander implements ThreatHandler, Broadcaster {
     * @param sources the list of sources to receive events and forward them to
     *                each researcher
     */
-   public Commander(List<Researcher> researchers, List<DataSource> sources) {
+   public Commander(Map<String, Researcher> researchers, List<DataSource> sources) {
       this.researchers = researchers;
       this.sources = sources;
 
-      for (Researcher r : researchers) {
-         r.setThreatHandler(this);
+      for (String r : researchers.keySet()) {
+         researchers.get(r).setThreatHandler(this);
+         resAvg.put(r, new ResearcherAvg());
       }
 
       for (DataSource ds : sources) {
@@ -129,8 +140,11 @@ public class Commander implements ThreatHandler, Broadcaster {
     * @param t a threat from a Researcher
     */
    @Override
-   public synchronized void reportThreat(Threat t) {
+   public synchronized void reportThreat(Threat t, String from) {
       ScoreCard threat = levels.get(t.addr);
+
+      resAvg.get(from).addScore(t.level.severity);
+      long severity = Math.round(t.level.severity / resAvg.get(from).getScoreAvg() * ThreatLevel.ORANGE.severity);
 
       if (threat == null) {
          threat = new ScoreCard(t.level.severity, t.level.severity, t.timeMillis);
@@ -152,7 +166,7 @@ public class Commander implements ThreatHandler, Broadcaster {
     */
    @Override
    public synchronized void broadcastEvent(DataItem item) {
-      for (Researcher r : researchers)
+      for (Researcher r : researchers.values())
          r.reportEvent(item);
    }
 
@@ -222,12 +236,12 @@ public class Commander implements ThreatHandler, Broadcaster {
     * Main method
     */
    public static void main(String[] args) {
-      List<Researcher> researchers = new ArrayList<Researcher>();
+      Map<String, Researcher> researchers = new HashMap<String, Researcher>();
       List<DataSource> sources = new ArrayList<DataSource>();
 
       try {
-         researchers.add(new ErrorResearcher());
-         researchers.add(new FrequentAccessResearcher());
+         researchers.put("error", new ErrorResearcher("error"));
+         researchers.put("frequent", new FrequentAccessResearcher("frequent"));
          sources.add(new FileDataSource("error_log"));
          sources.add(new FileDataSource("access_log"));
       }

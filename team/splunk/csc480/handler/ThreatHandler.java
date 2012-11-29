@@ -2,6 +2,7 @@ package team.splunk.csc480.handler;
 
 import team.splunk.csc480.data.DataItem;
 import team.splunk.csc480.data.DataItem.*;
+import team.splunk.csc480.researcher.Researcher;
 
 /**
  * An interface for a class that handles threats. For an example, see the
@@ -108,6 +109,7 @@ public interface ThreatHandler {
     * reporting on them.
     *
     * @param t the threat object to report to the ThreatHandler
+    * @param key the key which identifies the Researcher, given at startup
     */
-   public void reportThreat(Threat t);
+   public void reportThreat(Threat t, String key);
 }

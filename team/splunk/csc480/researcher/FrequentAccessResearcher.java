@@ -27,7 +27,8 @@ public class FrequentAccessResearcher extends Researcher {
    private static final int kOrange = 10;
    private static final int kRed = 15;
    
-   public FrequentAccessResearcher() {
+   public FrequentAccessResearcher(String key) {
+      super(key);
       accesses = new HashMap<String, ArrayList<Date>>();
    }
 
@@ -85,22 +86,22 @@ public class FrequentAccessResearcher extends Researcher {
       long last = accesses.get(ipAddress).get(accesses.get(ipAddress).size()-1).getTime();
          
       if ((last - first) < kRange) {
-      	 int numThreats = accesses.get(ipAddress).size();
-       	 if (numThreats >= kRed) {
+      	int numThreats = accesses.get(ipAddress).size();
+       	if (numThreats >= kRed) {
             threatLevel = ThreatLevel.RED;
-        	 accesses.remove(ipAddress);
+        	   accesses.remove(ipAddress);
          }
          else if (numThreats >= kOrange) {
             threatLevel = ThreatLevel.ORANGE;
          }
          else if (numThreats >= kYellow) {
-        	threatLevel = ThreatLevel.YELLOW; 
+        	   threatLevel = ThreatLevel.YELLOW;
          }
        }
 
        if (threatLevel != ThreatLevel.BLUE) {
          t = new Threat(ipAddress, last, item, threatLevel);
-         handler.reportThreat(t);
+         this.reportThreat(t);
        }
    }
 }

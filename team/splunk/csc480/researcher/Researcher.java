@@ -13,8 +13,9 @@ import team.splunk.csc480.handler.ThreatHandler;
  */
 public abstract class Researcher {
    protected ThreatHandler handler;
+   protected String key;
 
-   protected Researcher() {}
+   protected Researcher(String key) { this.key = key; }
 
    /**
     * Sets the ThreatHandler for this Researcher to handler. This method must
@@ -36,4 +37,14 @@ public abstract class Researcher {
     * @param item a DataItem to analyze
     */
    public abstract void reportEvent(DataItem item);
+
+   /**
+    * Calls the reportThreat(...) function in this Researcher's ThreatHandler
+    * with the key given by the ThreatHandler
+    *
+    * @param threat the Threat to send
+    */
+   public void reportThreat(ThreatHandler.Threat threat) {
+      handler.reportThreat(threat, key);
+   }
 }

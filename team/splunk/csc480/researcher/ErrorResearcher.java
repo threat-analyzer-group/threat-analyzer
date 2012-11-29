@@ -1,14 +1,12 @@
 package team.splunk.csc480.researcher;
 
 import team.splunk.csc480.data.DataItem;
-import team.splunk.csc480.handler.ThreatHandler;
 import team.splunk.csc480.handler.ThreatHandler.*;
 
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,10 +19,19 @@ import java.util.regex.Pattern;
 public class ErrorResearcher extends Researcher {
    private static DateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
 
-   public ErrorResearcher() { }
+   public enum LogType {
+      ACCESS(Pattern.compile("\\d+/[A-Z][a-z][a-z]/\\d+:\\d+:\\d+:\\d+")),
+      ERROR(Pattern.compile("\\[(\\w{3} \\w{3} \\d{2} \\d{2}:\\d{2}:\\d{2} \\d{4})\\]"));
+
+      Pattern pattern;
+      LogType(Pattern p) { pattern = p; }
+   }
+
+   public ErrorResearcher(String key) { super(key); }
 
    @Override
    public void reportEvent(DataItem item) {
+      long time;
       Threat t = null;
       Pattern errorMessagePattern = Pattern.compile("\\[(warn|error|alert)\\]");
       Matcher errorMessageMatch = errorMessagePattern.matcher(item.data);
@@ -35,6 +42,7 @@ public class ErrorResearcher extends Researcher {
       //Handle [warn] | [error] | [alert] in the error_log
       if (errorMessageMatch.find() && errorMessageMatch.groupCount() > 0) {
          Pattern ipPat = Pattern.compile("client (\\d+\\.\\d+\\.\\d+.\\d+)");
+
          Matcher ipMatch = ipPat.matcher(item.data);
 
          String ipAddress = ipMatch.find() ? ipMatch.group(1) : "";
@@ -52,9 +60,9 @@ public class ErrorResearcher extends Researcher {
             threatLevel = ThreatLevel.RED;
          }
 
-         if (threatLevel != null) {
-            t = new Threat(ipAddress, getTime(item), item, threatLevel);
-            handler.reportThreat(t);
+         if (threatLevel != null && (time = getTime(item, LogType.ERROR)) > 0) {
+            t = new Threat(ipAddress, time, item, threatLevel);
+            this.reportThreat(t);
          }
       }
       //Handle error codes at the end of the access_log.
@@ -66,25 +74,24 @@ public class ErrorResearcher extends Researcher {
 
          String errorCode = errorCodeMatch.group(1);
 
-         t = new Threat(ipAddress, getTime(item), item, ThreatLevel.ORANGE);
-         handler.reportThreat(t);
+         if ((time = getTime(item, LogType.ACCESS)) > 0) {
+            t = new Threat(ipAddress, time, item, ThreatLevel.ORANGE);
+            this.reportThreat(t);
+         }
       }
    }
 
-   private long getTime(DataItem item) {
-      Pattern datePat = Pattern.compile("[(\\w{3} \\w{3} \\d{2} \\d{2}:\\d{2}:\\d{2} \\d{4})]");
-      Matcher dateMatch = datePat.matcher(item.data);
+   private long getTime(DataItem item, LogType errLog) {
+      Matcher dateMatch = errLog.pattern.matcher(item.data);
 
-      String date = (dateMatch.find() ? dateMatch.group(0) : "");
-      long millis;
+      String date = (dateMatch.find() ? dateMatch.group(1) : "");
 
       try {
-         millis = dateFormat.parse(date).getTime();
+         return dateFormat.parse(date).getTime();
       }
       catch (ParseException e) {
-         millis = 0L;
+         System.err.println("No date available in log entry");
+         return -1L;
       }
-
-      return millis;
    }
 }
