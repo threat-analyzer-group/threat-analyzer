@@ -21,8 +21,8 @@ public interface ThreatHandler {
    public static enum ThreatLevel {
       RED(10000), ORANGE(1000), YELLOW(100), GREEN(10), BLUE(1);
 
-      public int severity;
-      ThreatLevel(int severity) { this.severity = severity; }
+      public long severity;
+      ThreatLevel(long severity) { this.severity = severity; }
 
       /**
        * Return the highest threat level less than or equal to score.
