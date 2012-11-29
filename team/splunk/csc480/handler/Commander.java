@@ -155,8 +155,10 @@ public class Commander implements ThreatHandler, Broadcaster {
 
       levels.put(t.addr, threat);
 
-      if (threat.current > getThreshold())
-         System.out.println("IP over Threshold: " + t.addr + ", " + threat);
+      if (threat.current > getThreshold()) {
+         Date date = new Date(t.timeMillis);
+         System.out.println("[" + date + "] IP over Threshold: " + t.addr + ", " + threat);
+      }
    }
 
    /**
