@@ -36,8 +36,8 @@ public class Commander implements ThreatHandler, Broadcaster {
          this.updated = updated;
       }
 
-      public ScoreCard calculate(int severity, long newTime) {
-         long pointsOff = (newTime - updated) * msPerPoint;
+      public ScoreCard calculate(long severity, long newTime) {
+         long pointsOff = (newTime - updated) / msPerPoint;
          long score = (current - pointsOff) + severity;
 
          return new ScoreCard(total + severity, (score > 0) ? score : 0, newTime);
@@ -59,13 +59,14 @@ public class Commander implements ThreatHandler, Broadcaster {
       }
    }
 
-   private List<DataSource> sources = new ArrayList<DataSource>();
-   private List<Researcher> researchers = new ArrayList<Researcher>();
+   private List<DataSource> sources;
+   private Map<String, Researcher> researchers;
+   private Map<String, ResearcherAvg> resAvg = new HashMap<String, ResearcherAvg>();
 
    private Map<IPAddress, ScoreCard> levels = new HashMap<IPAddress, ScoreCard>();
 
-   private int threshold = 1000000;
-   private int msPerPoint = 10;
+   private long threshold = 3000000L;
+   private long msPerPoint = 1000L;
 
    private static final int DEFAULT_OFFENDERS = 10;
 
