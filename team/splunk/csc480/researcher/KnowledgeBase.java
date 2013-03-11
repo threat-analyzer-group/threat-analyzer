@@ -10,11 +10,20 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Singlton may not be thread safe?
 public class KnowledgeBase {
-   ArrayList<String> knowledge;
+   private static KnowledgeBase instance;
+   private static ArrayList<String> knowledge;
 
-   public KnowledgeBase() {
+   private KnowledgeBase() {
      knowledge = new ArrayList<String>();
+   }
+
+   public static KnowledgeBase getKnowledgeBase() {
+     if (instance == null) {
+        instance = new KnowledgeBase();
+     }
+     return instance;
    }
 
    /**

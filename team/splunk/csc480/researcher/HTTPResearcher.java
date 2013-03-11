@@ -17,7 +17,7 @@ public abstract class HTTPResearcher extends Researcher {
 
   protected HTTPResearcher(String key) {
      super(key);
-     kb = new KnowledgeBase();
+     kb = KnowledgeBase.getKnowledgeBase();
   }
 
   public void addKnowledge(String newKnowledge) {
