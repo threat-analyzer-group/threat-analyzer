@@ -1,5 +1,15 @@
-# Nothing shall be in this folder on commit! #
-*
+*.class
 
-# Except this file! #
-!.gitignore
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Random crap files #
+*~
+
+# IDE files #
+*.iml
+.idea
+.DS_Store
+
