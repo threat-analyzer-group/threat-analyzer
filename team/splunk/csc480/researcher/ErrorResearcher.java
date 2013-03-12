@@ -84,14 +84,11 @@ public class ErrorResearcher extends Researcher {
    private long getTime(DataItem item, LogType errLog) {
       Matcher dateMatch = errLog.pattern.matcher(item.data);
 
-      String date = (dateMatch.find() ? dateMatch.group(1) : "");
-
       try {
+         String date = (dateMatch.find() ? dateMatch.group(1) : "");
          return dateFormat.parse(date).getTime();
-      }
-      catch (ParseException e) {
-         System.err.println("No date available in log entry");
-         return -1L;
+      } catch (Exception e) {
+        return -1L;
       }
    }
 }

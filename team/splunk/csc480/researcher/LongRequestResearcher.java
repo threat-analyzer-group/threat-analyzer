@@ -21,8 +21,10 @@ public class LongRequestResearcher extends HTTPResearcher {
   private ArrayList<Double> accessTimes;
   private int logCount;
 
-  protected LongRequestResearcher(String key) {
+  public LongRequestResearcher(String key) {
     super(key);
+    accessTimes = new ArrayList<Double>();
+    logCount = 0;
   }
 
   private double getAverage() {
