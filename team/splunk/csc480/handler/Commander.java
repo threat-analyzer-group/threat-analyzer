@@ -1,18 +1,26 @@
 package team.splunk.csc480.handler;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import team.splunk.csc480.data.DataItem;
-import team.splunk.csc480.data.DataItem.*;
+import team.splunk.csc480.data.DataItem.IPAddress;
 import team.splunk.csc480.data.DataSource;
 import team.splunk.csc480.data.FileDataSource;
 import team.splunk.csc480.researcher.ErrorResearcher;
 import team.splunk.csc480.researcher.FrequentAccessResearcher;
+import team.splunk.csc480.researcher.HexEncodingResearcher;
 import team.splunk.csc480.researcher.LongRequestResearcher;
 import team.splunk.csc480.researcher.Researcher;
-
-import java.io.FileNotFoundException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Starts all available Researchers in a new thread and gives them a callback
@@ -255,10 +263,11 @@ public class Commander implements ThreatHandler, Broadcaster {
       try {
          researchers.put("error", new ErrorResearcher("error"));
          researchers.put("frequent", new FrequentAccessResearcher("frequent"));
-         researchers.put("long_request",
-                         new LongRequestResearcher("long_request"));
+         researchers.put("long_request", new LongRequestResearcher("long_request"));
+         researchers.put("hex", new HexEncodingResearcher("hex"));
          sources.add(new FileDataSource("error_log"));
          sources.add(new FileDataSource("access_log"));
+         sources.add(new FileDataSource("hex_log"));
       }
       catch (FileNotFoundException e) {
          e.printStackTrace();
