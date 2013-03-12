@@ -17,6 +17,7 @@ public class LongRequestResearcher extends Researcher {
   private static final int kYellow = 3000000;
 
   private static final int kMinLogsForAverage = 50;
+  private static final int kMinMicroseconds = 5000;
 
   private ArrayList<Double> accessTimes;
   private int logCount;
@@ -99,6 +100,9 @@ public class LongRequestResearcher extends Researcher {
           new Threat(ipAddress, date.getTime(), item, threatLevel));
       return;
     }
+
+    if (microseconds < kMinMicroseconds)
+      return;
 
     ++logCount;
     accessTimes.add(new Double(microseconds));
