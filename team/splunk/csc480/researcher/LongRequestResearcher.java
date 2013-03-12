@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class LongRequestResearcher extends HTTPResearcher {
+public class LongRequestResearcher extends Researcher {
   private static final int kRed    = 10000000;
   private static final int kOrange = 7000000;
   private static final int kYellow = 3000000;
