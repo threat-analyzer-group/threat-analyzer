@@ -43,6 +43,7 @@ public class HexEncodingResearcher extends HTTPResearcher {
 			return;
 		}
 
+		// This hex pattern is a double encoding attack (the most common hex encoding attack)
 		if (inferThreat(item, "GET .*%252E%252E%252F.* HTTP")) {
 			this.reportThreat(new Threat(ipAddress, curDate.getTime(), item, 
 					ThreatLevel.RED));
