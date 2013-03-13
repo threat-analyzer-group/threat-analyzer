@@ -14,7 +14,7 @@ public class HexEncodingResearcher extends HTTPResearcher {
 
 	public HexEncodingResearcher(String key) {
 		super(key);
-		addKnowledge("GET .*%252E%252E%252F.* HTTP");
+		addKnowledge("75.892.10.750 - - [07/Mar/2013:22:58:35 +0000] \"GET %252E%252E%252F HTTP/1.1\" 404 988 1");
 	}
 
 	@Override
