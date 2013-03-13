@@ -67,44 +67,47 @@ public class LongRequestResearcher extends Researcher {
 
   @Override
   public void reportEvent(DataItem item) {
-    String usString;
-    String ipAddress;
-    String dateString;
-    Date date = new Date();
-    int microseconds;
 
-    Pattern timePattern = Pattern.compile(".* \\d+ \\d+ (\\d+)$");
-    Matcher timeMatcher = timePattern.matcher(item.data);
-    usString = timeMatcher.find() ? timeMatcher.group(1) : "";
-    if (usString.length() == 0)
-      return;
-    microseconds = Integer.parseInt(usString);
-
-    Pattern ipPattern = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+) .*");
-    Matcher ipMatcher = ipPattern.matcher(item.data);
-    ipAddress = ipMatcher.find() ? ipMatcher.group(1) : "";
-
-    Pattern datePattern = Pattern.compile(".*\\[(.*)\\].*");
-    Matcher dateMatcher = datePattern.matcher(item.data);
-    dateString = dateMatcher.find() ? dateMatcher.group(1) : "";
-    SimpleDateFormat dateFormat = new SimpleDateFormat(
-        "dd/MMM/yyyy:HH:mm:ss Z");
-
-    try {
-      date = dateFormat.parse(dateString);
-    } catch (Exception e) { }
-
-    ThreatLevel threatLevel = getThreatLevel(microseconds);
-    if (threatLevel != ThreatLevel.BLUE) {
-      this.reportThreat(
-          new Threat(ipAddress, date.getTime(), item, threatLevel));
-      return;
-    }
-
-    if (microseconds < kMinMicroseconds)
-      return;
-
-    ++logCount;
-    accessTimes.add(new Double(microseconds));
+	if (item.fromFile.equals("long_access_log")) {
+	    String usString;
+	    String ipAddress;
+	    String dateString;
+	    Date date = new Date();
+	    int microseconds;
+	
+	    Pattern timePattern = Pattern.compile(".* \\d+ \\d+ (\\d+)$");
+	    Matcher timeMatcher = timePattern.matcher(item.data);
+	    usString = timeMatcher.find() ? timeMatcher.group(1) : "";
+	    if (usString.length() == 0)
+	      return;
+	    microseconds = Integer.parseInt(usString);
+	
+	    Pattern ipPattern = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+) .*");
+	    Matcher ipMatcher = ipPattern.matcher(item.data);
+	    ipAddress = ipMatcher.find() ? ipMatcher.group(1) : "";
+	
+	    Pattern datePattern = Pattern.compile(".*\\[(.*)\\].*");
+	    Matcher dateMatcher = datePattern.matcher(item.data);
+	    dateString = dateMatcher.find() ? dateMatcher.group(1) : "";
+	    SimpleDateFormat dateFormat = new SimpleDateFormat(
+	        "dd/MMM/yyyy:HH:mm:ss Z");
+	
+	    try {
+	      date = dateFormat.parse(dateString);
+	    } catch (Exception e) { }
+	
+	    ThreatLevel threatLevel = getThreatLevel(microseconds);
+	    if (threatLevel != ThreatLevel.BLUE) {
+	      this.reportThreat(
+	          new Threat(ipAddress, date.getTime(), item, threatLevel));
+	      return;
+	    }
+	
+	    if (microseconds < kMinMicroseconds)
+	      return;
+	
+	    ++logCount;
+	    accessTimes.add(new Double(microseconds));
+	}
   }
 }
