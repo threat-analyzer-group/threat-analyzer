@@ -19,6 +19,7 @@ import team.splunk.csc480.data.FileDataSource;
 import team.splunk.csc480.researcher.ErrorResearcher;
 import team.splunk.csc480.researcher.FrequentAccessResearcher;
 import team.splunk.csc480.researcher.HexEncodingResearcher;
+import team.splunk.csc480.researcher.SpiderResearcher;
 import team.splunk.csc480.researcher.LongRequestResearcher;
 import team.splunk.csc480.researcher.Researcher;
 
@@ -265,10 +266,12 @@ public class Commander implements ThreatHandler, Broadcaster {
          researchers.put("frequent", new FrequentAccessResearcher("frequent"));
          researchers.put("long_request", new LongRequestResearcher("long_request"));
          researchers.put("hex", new HexEncodingResearcher("hex"));
+         researchers.put("spider", new SpiderResearcher("spider"));
          sources.add(new FileDataSource("error_log"));
          sources.add(new FileDataSource("access_log"));
          sources.add(new FileDataSource("hex_log"));
          sources.add(new FileDataSource("long_access_log"));
+         sources.add(new FileDataSource("spider_log"));
       }
       catch (FileNotFoundException e) {
          e.printStackTrace();
