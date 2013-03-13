@@ -268,6 +268,7 @@ public class Commander implements ThreatHandler, Broadcaster {
          sources.add(new FileDataSource("error_log"));
          sources.add(new FileDataSource("access_log"));
          sources.add(new FileDataSource("hex_log"));
+         sources.add(new FileDataSource("long_access_log"));
       }
       catch (FileNotFoundException e) {
          e.printStackTrace();
