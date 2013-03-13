@@ -47,11 +47,11 @@ public class LongRequestResearcher extends Researcher {
     if (logCount > kMinLogsForAverage) {
       double average = getAverage();
       double sigma = getStandardDeviation();
-      if (microseconds > accessTimes.get(accessTimes.size() - 1) + sigma)
+      if (microseconds > accessTimes.get(accessTimes.size() - 1) + 0.5 * sigma)
         return ThreatLevel.RED;
-      if (microseconds > average + 2 * sigma)
+      if (microseconds > average + 1.3 * sigma)
         return ThreatLevel.ORANGE;
-      if (microseconds > average + sigma)
+      if (microseconds > average + 0.8 * sigma)
         return ThreatLevel.YELLOW;
       return ThreatLevel.BLUE;
     } else {
